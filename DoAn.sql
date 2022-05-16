@@ -122,150 +122,7 @@ Begin
 END
 
 Go
--- Phân quyền
-/*
-Create procedure PhanQuyenUser
-        @login varchar(50),
-        @db varchar(100)
-as
-declare @new_login varchar(50), @new_pass varchar(50)
-	Set @new_login = REPLACE(@login,'.com','')
-	Set @new_pass = REPLACE(@login,'@gmail.com','')
-declare @sql nvarchar(max)
-set @sql = 'use ' + @db + ';' +
-           'create login ' + @new_login + 
-               ' with password = ''' + @new_pass + '''; ' +
-           'create user '+ + @new_login + ' from login ' + @new_login + ';'
-		   +'Grant select on KhachHang to '+@new_login+';'
-		   +'Grant select on Sach to '+@new_login+';'
-exec (@sql)
-go
 
-Create procedure PhanQuyenAdmin
-			@login varchar(50),
-			@db varchar(100)
-	as
-	declare @new_login varchar(50), @new_pass varchar(50)
-	Set @new_login = REPLACE(@login,'.com','')
-	Set @new_pass = REPLACE(@login,'@gmail.com','')
-
-	declare @sql nvarchar(max)
-	set @sql = 'use ' + @db + ';' +
-			   'create login ' + @new_login + 
-				   ' with password = ''' + @new_pass + '''; ' +
-			   'create user '+ + @new_login + ' from login ' + @new_login + ';'
-			   +'Grant select on KhachHang to '+@new_login+' with grant option;'
-			   +'Grant select,insert,update on Sach to '+@new_login+' with grant option;'
-				+'Grant select,insert,update on DonHang to '+@new_login+';'
-			   +'Grant select,insert,update on NguoiQuanLy to '+@new_login+';'
-				+'Grant select,insert,update on NhaXuatBan to '+@new_login+';'
-			   +'Grant select,insert,update on ChiTietHoaDon to '+@new_login+';'
-	exec (@sql)
-go
-
-Create Proc XoaQuyenUser
-	@login varchar(50),
-    @db varchar(100)
-As
-	declare @new_login varchar(50)
-	Set @new_login = REPLACE(@login,'.com','')
-	declare @sql nvarchar(max)
-		set @sql = 'use ' + @db + ';' 
-			   +'revoke select on KhachHang from '+@new_login+';'
-			   +'revoke select,insert,update on Sach from '+@new_login+';'
-			   +'drop user ' + @new_login + '; '
-			   +'drop login ' + @new_login + '; '
-	exec (@sql)
-GO
-
-Create Proc XoaQuyenAdmin
-	@login varchar(50),
-    @db varchar(100)
-As
-	declare @new_login varchar(50)
-	Set @new_login = REPLACE(@login,'.com','')
-	declare @sql nvarchar(max)
-		set @sql = 'use ' + @db + ';' 
-			   +'revoke select on KhachHang from '+@new_login+' cascade;'
-			   +'revoke select,insert,update on Sach from '+@new_login+' cascade;'
-			   +'revoke select,insert,update on DonHang from '+@new_login+';'
-			   +'revoke select,insert,update on NguoiQuanLy from '+@new_login+';'
-			   +'revoke select,insert,update on NhaXuatBan from '+@new_login+';'
-			   +'revoke select,insert,update on ChiTietHoaDon from '+@new_login+';'
-			   +'drop user ' + @new_login +'; '
-			   +'drop login ' + @new_login + '; '
-	exec (@sql)
-GO
-
-CREATE Trigger ThemQuyen on KhachHang
-After Insert
-As
-	Declare @maKH varchar(20), @gmail varchar(50),@quyen nvarchar(20)
-Begin
-	Declare ThemQuyenUserCursor Cursor For
-
-	Select i.MaKH,i.Gmail,i.Quyen  from Inserted as i
-
-	Open ThemQuyenUserCursor
-	Fetch next from ThemQuyenUserCursor into @maKH, @gmail,@quyen
-	While @@FETCH_STATUS = 0
-	Begin
-		Begin tran
-		if((@maKH is not null ) and @quyen = 'User' )
-			begin
-				exec PhanQuyenUser @gmail, 'DoAn'
-			end
-		else
-			if((@maKH is not null ) and @quyen = 'admin')
-				begin
-					exec PhanQuyenAdmin @gmail, 'DoAn'
-				end
-		commit
-
-	Fetch next from ThemQuyenUserCursor into @maKH, @gmail,@quyen
-	End
-	Close ThemQuyenUserCursor
-	Deallocate ThemQuyenUserCursor
-
-End
-
-Go
-
--- Xóa quyền
-CREATE Trigger XoaQuyen on KhachHang
-After Delete
-As
-	Declare @maKH varchar(20), @gmail varchar(50),@quyen nvarchar(20)
-Begin
-	Declare XoaQuyenCursor Cursor For
-
-	Select d.MaKH,d.Gmail,d.Quyen  from deleted as d
-
-	Open XoaQuyenCursor
-	Fetch next from XoaQuyenCursor into @maKH, @gmail,@quyen
-	While @@FETCH_STATUS = 0
-	Begin
-		Begin tran
-		if(@quyen = 'User' )
-			begin
-				exec XoaQuyenUser @gmail, 'DoAn'
-			end
-		else
-			if(@quyen = 'admin')
-				begin
-					exec XoaQuyenAdmin @gmail, 'DoAn'
-				end
-		commit
-
-	Fetch next from XoaQuyenCursor into @maKH, @gmail,@quyen
-	End
-	Close XoaQuyenCursor
-	Deallocate XoaQuyenCursor
-
-End
-
-Go
-*/
 -- Trigger khi hủy đơn hàng
 CREATE TRIGGER t_huydon ON ChiTietHoaDon AFTER DELETE
 AS
@@ -525,24 +382,7 @@ INSERT INTO NhaXuatBan(MaNXB, TenNXB) VALUES
 ('NXB0005', N'NXB NLS');
 GO
 
-/*KH*/
 
-/*
-Drop login Binh@gmail
-Drop user phatdat@gmail
-Drop login An@gmail
-Drop login tranquoctuan@gmail
-Drop user tuanmanh@gmail
-Drop user lamson@gmail
-
-delete KhachHang where Gmail = 'An@gmail.com';
-delete KhachHang where Gmail = 'Binh@gmail.com' 
-delete KhachHang where Gmail = 'tranquoctuan@gmail.com';
-delete KhachHang where Gmail = 'phatdat@gmail.com' 
-delete KhachHang where Gmail = 'tuanmanh@gmail.com'
-delete KhachHang where Gmail = 'lamson@gmail.com'
-go
-*/
 
 INSERT INTO KhachHang( HovaTen, SoDienThoai,DiaChi ,PassWord, Gmail) VALUES
 (N'Trần An Bình', '0909244322' ,N'61 Tô Hiến Thành, Quận 10, TP HCM','333333' ,'Binh@gmail.com');
@@ -740,32 +580,10 @@ Begin
 	and s.MaNXB=nxb.MaNXB
 End
 
+Go
 
-select * from DonHang
-
-select sum(TongTien),NgayDat from DonHang group by NgayDat,NgayNhan Having NgayNhan is not null
-
-Insert into DonHang(MaKH,NgayDat,NgayNhan,TongTien) values(2,'2021-8-2','2021-8-30',500)
-
-Create proc ThongKe
-@dateStart date,@dateEnd date, @chucnang varchar(20)
-As
-
-Begin
-	-- CN1 : thống kê tổng tiền theo tuần
-	if(@chucnang = 'CN1')
-		select sum(TongTien) as TongTien,NgayDat from DonHang group by NgayDat,NgayNhan Having NgayNhan is not null
-		-- 
-	if(@chucnang = 'CN2')
-		Select s.TenSach,Sum(vkh.SoLuong) as SoLuong,Sum(vkh.ThanhTien) as ThanhTien from view_thongtinKH as vkh ,Sach as s
-		Where vkh.MaSach = s.MaSach
-		Group by vkh.NgayDat,s.TenSach Having vkh.NgayDat = @dateStart
-
-	
-End;
-
-Create proc ThongKe2
-@dateStart date,@dateEnd date
+create proc ThongKe2
+@dateStart date
 As
 
 Begin
@@ -777,7 +595,7 @@ Begin
 End;
 
 
-
+GO
 create proc trongtuan
 @date date 
 as
@@ -799,7 +617,7 @@ having DATEPART(MM,NgayDat)=@month and DATEPART(yy,NgayDat) = DATEPART(yy,@Date)
 
 go
 
-alter proc trongnam
+Create proc trongnam
 @nam int
 As
 Begin
@@ -851,3 +669,128 @@ as
 	having DATEPART(yy,NgayDat)=DATEPART(yy,@date)
 
 Go
+
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-10-1','2020-10-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (2,'2020-9-1','2020-9-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2020-8-2','2020-10-2')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-10-1','2020-10-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2020-1-15','2020-2-2')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-4-8','2020-5-6')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-1-1','2021-2-1')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (5,'2021-1-6','2021-2-6')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-1-7','2021-1-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (2,'2021-4-1','2021-4-8')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2021-6-1','2021-6-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (6,'2021-8-2','2021-8-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-10-1','2021-10-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-11-1','2021-11-17')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-12-1','2021-12-2')
+go
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(1,'S0019',3)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(2,'S0001',3)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(3,'S0006',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(4,'S0025',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(5,'S0011',4)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(6,'S0021',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(7,'S0002',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(8,'S0009',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(9,'S0004',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(10,'S0027',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(11,'S0024',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(12,'S0026',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(13,'S0025',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(14,'S0020',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(15,'S0012',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(1,'S0014',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(4,'S0017',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(2,'S0019',3)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(3,'S0018',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(4,'S0001',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(1,'S0002',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(8,'S0025',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(15,'S0013',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(10,'S0010',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(12,'S0011',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(13,'S0004',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(11,'S0013',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(12,'S0012',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(9,'S0015',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(8,'S0026',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(14,'S0021',2)
+
+
+
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-10-3','2020-10-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-10-7','2020-10-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (2,'2020-9-1','2020-9-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (2,'2020-8-2','2020-10-2')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-7-1','2020-7-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-7-2','2020-7-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-7-3','2020-7-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2020-1-15','2020-2-2')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2020-4-8','2020-5-6')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-1-1','2021-2-1')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2021-1-10','2021-2-1')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-1-15','2021-1-20')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-3-1','2021-4-1')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2021-3-10','2021-4-1')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-3-15','2021-4-20')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-6-1','2021-6-10')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2021-6-10','2021-6-25')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-6-15','2021-6-20')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-4-1','2021-4-20')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2021-4-10','2021-4-20')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-7-15','2021-7-20')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (2,'2021-7-1','2021-7-8')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (4,'2021-8-1','2021-8-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (6,'2021-8-12','2021-8-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-10-3','2021-10-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (1,'2021-11-12','2021-11-17')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-12-1','2021-12-5')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2021-12-2','2021-12-5')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2019-12-6','2019-12-15')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2019-11-10','2019-11-28')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2019-12-13','2019-12-28')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2019-10-16','2019-10-28')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2019-10-20','2019-10-28')
+insert into DonHang(MaKH,NgayDat,NgayNhan) values (3,'2019-12-10','2019-12-28')
+
+go
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(2,'S0001',3)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(3,'S0006',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(4,'S0025',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(5,'S0011',4)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(6,'S0021',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(7,'S0002',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(8,'S0009',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(9,'S0004',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(10,'S0027',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(11,'S0024',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(12,'S0026',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(13,'S0025',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(14,'S0020',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(15,'S0012',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(16,'S0014',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(17,'S0017',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(2,'S0019',3)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(18,'S0018',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(19,'S0001',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(20,'S0002',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(21,'S0025',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(22,'S0013',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(23,'S0010',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(24,'S0011',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(25,'S0004',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(26,'S0013',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(27,'S0012',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(28,'S0015',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(29,'S0026',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(30,'S0021',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(31,'S0010',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(32,'S0011',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(33,'S0004',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(34,'S0013',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(35,'S0012',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(30,'S0015',2)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(27,'S0026',1)
+insert into ChiTietHoaDon(MaHD,MaSach,SoLuong) values(25,'S0021',2)

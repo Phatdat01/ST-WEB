@@ -24,16 +24,32 @@ namespace Book.Controllers
         {
             if (Session["UserID"] != null)
             {
-               
+
                 int maKH = Convert.ToInt32(Session["ID"]);
                 DateTime date = DateTime.Now;
                 DateTime date2 = DateTime.Parse(date.ToString("MM-dd-yyyy"));
-                var viewKH = db.view_thongtinKH.Where(s => s.MaKH == maKH && s.NgayDat == date2) ;
-                if(viewKH.ToList().Count() > 0)
+                var date3 = DateTime.Parse(DateTime.Today.ToString("dd-MM-yyyy"));
+                var viewKH = db.view_thongtinKH.Where(s => s.MaKH == maKH && s.NgayDat == date2).ToList();
+                if (viewKH.Count <= 0)
                 {
-                    ViewBag.item = true;
+                    viewKH = db.view_thongtinKH.Where(s => s.MaKH == maKH && s.NgayDat == date3).ToList();
+                    int count2 = viewKH.Count();
+                    if (count2 > 0)
+                    {
+                        ViewBag.item = true;
+
+                    }
+                    return View(viewKH);
                 }
-                return View(viewKH.ToList());
+                else
+                {
+
+                    if (viewKH.Count() > 0)
+                    {
+                        ViewBag.item = true;
+                    }
+                    return View(viewKH);
+                }
             }
             else
             {

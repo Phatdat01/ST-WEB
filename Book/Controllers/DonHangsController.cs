@@ -17,7 +17,7 @@ namespace Book.Controllers
         // GET: DonHangs
         public ActionResult Index()
         {
-            
+
             var donHangs = db.DonHangs.Include(d => d.KhachHang);
             return View(donHangs.ToList());
         }
@@ -25,48 +25,41 @@ namespace Book.Controllers
         public ActionResult Chart()
         {
             DateTime date = DateTime.Now;
-            
-                var dt = db.Database.SqlQuery<trongtuan_Result>("trongtuan '" + date +"'");
-               return View(dt.ToList());
+
+            var dt = db.Database.SqlQuery<trongtuan_Result>("trongtuan '" + date + "'");
+            return View(dt.ToList());
 
         }
 
         // Thông kê số lượng theo ngày
         public ActionResult Chart2()
         {
-            //if(d == null)
-            //{
+            DateTime date = DateTime.Now;
 
-                DateTime date = DateTime.Now;
-           
-                var dt = db.Database.SqlQuery<ThongKe2_Result>("ThongKe2 '" +date +"' ,'2021-11-30'").ToList();
-            
-            
-                int count = dt.Count;
-                if(count <= 0)
+            var dt = db.Database.SqlQuery<ThongKe2_Result>("ThongKe2 '" + date + "'").ToList();
+            int count1 = dt.Count;
+            if (count1 <= 0)
+            {
+                var date2 = DateTime.Today.ToString("dd-MM-yyyy");
+                var dt2 = db.Database.SqlQuery<ThongKe2_Result>("ThongKe2 '" + date2 + "'").ToList();
+                int count = dt2.Count;
+                if (count <= 0)
                 {
                     ViewBag.Quantity = null;
                 }
                 else
                 {
                     ViewBag.Quantity = "have";
-                }
-                return View(dt);
-            //}
-            //else
-            //    if (TempData["d"] != null)
-            //{
-            //    ViewBag.type = "month";
-            //    var dt = db.Database.SqlQuery<SoSachBanTrongThang_Result>("SoSachBanTrongThang '" + TempData["d"].ToString() + "'").ToList();
-            //    return View(dt);
-            //}
-            //else
-            //{
-            //    ViewBag.type = "week";
-            //    var dt = db.Database.SqlQuery<SoSachBanTrongTuan_Result>("SoSachBanTrongTuan '" + d + "'").ToList();
-            //    return View(dt);
-            //}
 
+                }
+                return View(dt2);
+            }
+            else
+            {
+                ViewBag.Quantity = "have";
+            }
+
+            return View(dt);
         }
 
         public ActionResult Chart3()
@@ -75,7 +68,7 @@ namespace Book.Controllers
 
             if (TempData["yyyy"] != null)
             {
-             year = TempData["yyyy"].ToString();
+                year = TempData["yyyy"].ToString();
             }
 
             DateTime current = DateTime.Now;
@@ -92,13 +85,13 @@ namespace Book.Controllers
                 allYears.Add((int)dt2[i].nam);
             }
             ViewBag.time = allYears;
-         
-             ViewBag.year = yy;
-            
-           
-            var dt = db.Database.SqlQuery<trongnam_Result>("trongnam "+ yy);
 
-            
+            ViewBag.year = yy;
+
+
+            var dt = db.Database.SqlQuery<trongnam_Result>("trongnam " + yy);
+
+
 
             return View(dt.ToList());
 
@@ -124,7 +117,7 @@ namespace Book.Controllers
 
         public ActionResult Chart4()
         {
-          
+
             var dt2 = db.Database.SqlQuery<bookyear2_Result>("bookyear2 ").ToList();
 
             List<int> allYears = new List<int>();
@@ -138,7 +131,7 @@ namespace Book.Controllers
             {
                 DateTime date = DateTime.Now;
                 var dt = db.Database.SqlQuery<trongthang_Result>("trongthang '" + date + "'").ToList();
-              
+
                 return View(dt);
             }
             else
@@ -153,7 +146,7 @@ namespace Book.Controllers
         {
             DateTime date1 = DateTime.Now;
 
-            var dt = db.Database.SqlQuery<SoSachBanTrongTuan_Result>("SoSachBanTrongTuan '"+date1+"'").ToList();
+            var dt = db.Database.SqlQuery<SoSachBanTrongTuan_Result>("SoSachBanTrongTuan '" + date1 + "'").ToList();
             return View(dt);
 
         }
@@ -173,7 +166,7 @@ namespace Book.Controllers
             if (TempData["d"] != null)
             {
 
-                 date = TempData["d"].ToString();
+                date = TempData["d"].ToString();
             }
             var dt = db.Database.SqlQuery<SoSachBanTrongThang_Result>("SoSachBanTrongThang '" + date + "'").ToList();
             return View(dt);
@@ -189,13 +182,10 @@ namespace Book.Controllers
             Session["month"] = month;
             if (type == "doanhthu")
             {
-
                 return RedirectToAction("Chart4");
-
             }
             else
             {
-               
                 return RedirectToAction("SoLuongTheoThang");
             }
 
@@ -245,7 +235,7 @@ namespace Book.Controllers
         {
             if (ModelState.IsValid)
             {
-               
+
                 db.DonHangs.Add(donHang);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -324,5 +314,5 @@ namespace Book.Controllers
         }
     }
 
-   
+
 }

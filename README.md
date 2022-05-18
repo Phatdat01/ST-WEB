@@ -1,5 +1,9 @@
 # DoAnDBMS quản lý thư viện
 
+Công nghệ sử dụng: ASP.NET MVC
+ngôn ngữ C#,
+Công cụ quản lý:Visual studio
+
 ## Cập nhập Database
 - Trong file doan.sql chỉ cần bỏ file vào và bấm F5 là vào chạy được tất
 ## CSS
